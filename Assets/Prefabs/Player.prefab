@@ -66,7 +66,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1115733376695628}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.4, y: -1.699, z: 0}
+  m_LocalPosition: {x: -6.4, y: -1.706719, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4013920927733964}
@@ -88,7 +88,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 3
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 946b6699e7dd44d0f8343ad8eb92acfc, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
@@ -139,10 +139,10 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 4294967039
-  accelerationRate: 24
-  decelerationRate: 48
-  maxSpeed: 6
-  jumpSpeed: 12
+  accelerationRate: 32
+  decelerationRate: 64
+  maxSpeed: 8
+  jumpSpeed: 8
 --- !u!212 &212175397235028572
 SpriteRenderer:
   m_ObjectHideFlags: 1

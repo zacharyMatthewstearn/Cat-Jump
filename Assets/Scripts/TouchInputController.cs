@@ -12,6 +12,10 @@ public class TouchInputController : MonoBehaviour {
 	private bool ready = false;
 
 
+
+
+
+
 	void Start () {
 		playerController = GameObject.Find ("Player").GetComponent<PlayerController>();
 
@@ -54,5 +58,20 @@ public class TouchInputController : MonoBehaviour {
 				playerController.Move (0);
 		} else
 			playerController.Move (0);
+
+
+
+
+
+
+
+//		playerController.Move ((int)Input.GetAxisRaw ("Horizontal"));
+//		if (Input.GetAxisRaw ("Vertical") > 0)
+//			playerController.Jump ();
+
+
+
+
+
 	}
 }
