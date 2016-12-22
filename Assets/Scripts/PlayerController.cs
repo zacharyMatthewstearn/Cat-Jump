@@ -36,26 +36,29 @@ public class PlayerController : MonoBehaviour {
 			if (speed < -maxSpeed) {
 				speed = -maxSpeed;
 			}
+//			speed = -maxSpeed;
 		}
 		else if(source == 1) {
 			speed += accelerationRate * Time.deltaTime;
 			if (speed > maxSpeed) {
 				speed = maxSpeed;
 			}
+//			speed = maxSpeed;
 		}
 		else {
 			if (speed > 0) {
 				speed -= decelerationRate * Time.deltaTime;
-				if (speed < 0.1f) {
+				if (speed < 0.5f) {
 					speed = 0;
 				}
 			}
 			else if (speed < 0) {
 				speed += decelerationRate * Time.deltaTime;
-				if (speed > -0.1f) {
+				if (speed > -0.5f) {
 					speed = 0;
 				}
 			}
+//			speed = 0;
 		}
 
 		rb2d.velocity = new Vector2(speed, rb2d.velocity.y);

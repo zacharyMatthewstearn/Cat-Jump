@@ -9,6 +9,8 @@ public class TouchInputController : MonoBehaviour {
 	Rect panelRight;
 	Rect panelGesture;
 
+	private bool ready = false;
+
 
 	void Start () {
 		playerController = GameObject.Find ("Player").GetComponent<PlayerController>();
@@ -23,31 +25,34 @@ public class TouchInputController : MonoBehaviour {
 	}
 
 	void Update () {
-		int touchCount = Input.touchCount;
-		bool iShouldMoveLeft = false;
-		bool iShouldMoveRight = false;
-		if (touchCount > 0) {
-			for(int i = 0; i < touchCount; i++) {
-				Vector2 touchPos = Input.GetTouch(i).position;
-				if (panelLeft.Contains (touchPos)) {
-					iShouldMoveLeft = true;
-				}
-				if (panelRight.Contains (touchPos)) {
-					iShouldMoveRight = true;
-				}
+		if (Input.touchCount == 0)
+			ready = true;
+		if (Input.touchCount > 0 && ready) {
+			int touchCount = Input.touchCount;
+			bool iShouldMoveLeft = false;
+			bool iShouldMoveRight = false;
+			if (touchCount > 0) {
+				for (int i = 0; i < touchCount; i++) {
+					Vector2 touchPos = Input.GetTouch (i).position;
+					if (panelLeft.Contains (touchPos)) {
+						iShouldMoveLeft = true;
+					}
+					if (panelRight.Contains (touchPos)) {
+						iShouldMoveRight = true;
+					}
 
-				if (panelGesture.Contains(touchPos)) {
-					playerController.Jump ();
+					if (panelGesture.Contains (touchPos)) {
+						playerController.Jump ();
+					}
 				}
 			}
-		}
-		if (iShouldMoveLeft && !iShouldMoveRight)
-			playerController.Move (-1);
-		else if (iShouldMoveRight && !iShouldMoveLeft)
-			playerController.Move (1);
-		else
+			if (iShouldMoveLeft && !iShouldMoveRight)
+				playerController.Move (-1);
+			else if (iShouldMoveRight && !iShouldMoveLeft)
+				playerController.Move (1);
+			else
+				playerController.Move (0);
+		} else
 			playerController.Move (0);
 	}
-
-
 }
