@@ -10,54 +10,66 @@ public class PlayerController : MonoBehaviour {
 	private bool facingRight = true;
 	private bool grounded = false;
 	private float groundRadius = 0.2f;
-
-
-	public float maxSpeed = 10f;
-	public float jumpForce = 20f;
 	public LayerMask whatIsGround;
+
+	private float speed = 0f;
+	public float accelerationRate = 6f;
+	public float decelerationRate = 12f;
+	public float maxSpeed = 4f;
+	public float jumpSpeed = 6f;
+
 
 	void Start () {
 		rb2d = gameObject.GetComponent<Rigidbody2D>();
 		animator = gameObject.GetComponent<Animator> ();
 	}
-
-
+		
 	void FixedUpdate () {
 		grounded = Physics2D.OverlapCircle (groundCheck.position, groundRadius, whatIsGround);
 		animator.SetBool ("Ground", grounded);
 		animator.SetFloat ("vSpeed", rb2d.velocity.y);
-
-//		float move = Input.GetAxis ("Horizontal");
-//		animator.SetFloat ("Speed", Mathf.Abs (move));
-//
-//		rb2d.velocity = new Vector2(move * maxSpeed, rb2d.velocity.y);
-//		if ((move > 0 && !facingRight) || (move < 0 && facingRight))
-//			Flip ();
 	}
 
-//	void Update() {
-//		if (grounded && Input.GetAxis ("Vertical") > 0) {
-//			animator.SetBool ("Ground", false); // Duplicated for snappy responsiveness
-//			rb2d.AddForce(new Vector2(0, jumpForce));
-//		}
-//	}
-
 	public void Move(int source) {
-		if(source == -1 || source == 1) {
-			rb2d.velocity = new Vector2(source * maxSpeed, rb2d.velocity.y);
-			if ((source > 0 && !facingRight) || (source < 0 && facingRight))
-				Flip ();
-			animator.SetFloat ("Speed", Mathf.Abs (rb2d.velocity.x));
+		if(source == -1) {
+			speed -= accelerationRate * Time.deltaTime;
+			if (speed < -maxSpeed) {
+				speed = -maxSpeed;
+			}
+		}
+		else if(source == 1) {
+			speed += accelerationRate * Time.deltaTime;
+			if (speed > maxSpeed) {
+				speed = maxSpeed;
+			}
 		}
 		else {
-			Debug.Log ("PLayer's 'Move' method recieved a bad value for 'source'!");
+			if (speed > 0) {
+				speed -= decelerationRate * Time.deltaTime;
+				if (speed < 0.1f) {
+					speed = 0;
+				}
+			}
+			else if (speed < 0) {
+				speed += decelerationRate * Time.deltaTime;
+				if (speed > -0.1f) {
+					speed = 0;
+				}
+			}
 		}
+
+		rb2d.velocity = new Vector2(speed, rb2d.velocity.y);
+
+		if ((source > 0 && !facingRight) || (source < 0 && facingRight))
+			Flip ();
+		
+		animator.SetFloat ("Speed", Mathf.Abs(speed));
 	}
 
 	public void Jump() {
 		if(grounded) {
 			animator.SetBool ("Ground", false); // Duplicated for snappy responsiveness
-			rb2d.AddForce(new Vector2(0, jumpForce));
+			rb2d.velocity = new Vector2(rb2d.velocity.x, jumpSpeed);
 		}
 	}
 
