@@ -6,10 +6,11 @@ public class PlayerController : MonoBehaviour {
 	private Rigidbody2D rb2d = null;
 	private Animator animator = null;
 	public Transform groundCheck = null;
+	private SoundManager soundManager = null;
 
 	private bool facingRight = true;
-	private bool grounded = false;
-	private float groundRadius = 0.2f;
+	private bool grounded = true;
+	public float groundRadius = 0.1f;
 	public LayerMask whatIsGround;
 
 	private float speed = 0f;
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour {
 	void Start () {
 		rb2d = gameObject.GetComponent<Rigidbody2D>();
 		animator = gameObject.GetComponent<Animator> ();
+		soundManager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
 	}
 		
 	void FixedUpdate () {
@@ -71,7 +73,10 @@ public class PlayerController : MonoBehaviour {
 
 	public void Jump() {
 		if(grounded) {
+			grounded = false;
 			animator.SetBool ("Ground", false); // Duplicated for snappy responsiveness
+			if (rb2d.velocity.y <= 0)
+				soundManager.RandomizeSFX(soundManager.JumpSounds);
 			rb2d.velocity = new Vector2(rb2d.velocity.x, jumpSpeed);
 		}
 	}
