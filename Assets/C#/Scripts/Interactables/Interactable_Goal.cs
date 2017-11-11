@@ -6,6 +6,6 @@ using UnityEngine.SceneManagement;
 public class Interactable_Goal : Interactable {
 
 	public override void Interact() {
-		Managers_Persistent.scenesManager.LoadWinScreen();
+		ReferenceController.gameController.LoadWinScreen();
 	}
 }

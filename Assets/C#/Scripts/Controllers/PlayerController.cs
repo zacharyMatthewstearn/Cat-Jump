@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(SpriteRenderer))]
@@ -8,17 +9,14 @@ using UnityEngine;
 [RequireComponent(typeof(CapsuleCollider2D))]
 
 public class PlayerController : MonoBehaviour {
-	
-	public static PlayerController instance = null;
 
 	private Rigidbody2D rb2d = null;
 	private Animator animator = null;
 	private SpriteRenderer spriteRenderer = null;
 	private CapsuleCollider2D cc2d = null;
 
-	private GameManager gameManager = null;
-	private ScenesManager scenesManager = null;
-	private SoundManager soundManager = null;
+	private GameController gameController = null;
+	private AudioController soundController = null;
 	private UIManager uiManager = null;
 
 	private CameraController cameraController = null;
@@ -42,8 +40,9 @@ public class PlayerController : MonoBehaviour {
 	[SerializeField] private float stopSlidingThreshold = 0.1f;
 	[SerializeField] private float respawnTimeBuffer = 0.2f;
 
-	private bool facingRight = true;
 	private bool hasPlayedThroughSlideAnimationOnce = false;
+	private bool begunFixedUpdateLoop = false;
+	private bool facingRight = true;
 	private bool grounded = false;
 	private bool blocked = false;
 	private bool sliding = false;
@@ -96,16 +95,6 @@ public class PlayerController : MonoBehaviour {
 
 
 	void Awake() {
-		if (instance == null)
-			instance = this;
-		else if (instance != this)
-			Destroy(gameObject);
-
-		DontDestroyOnLoad(gameObject);
-	}
-
-
-	void Start () {
 		rb2d = gameObject.GetComponent<Rigidbody2D>();
 		animator = gameObject.GetComponent<Animator> ();
 		spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
@@ -114,19 +103,26 @@ public class PlayerController : MonoBehaviour {
 		GameObject mainCamera = GameObject.Find("Main Camera");
 		if(mainCamera)
 			cameraController = mainCamera.GetComponent<CameraController>();
+	}
 
-		gameManager = Managers_Persistent.gameManager;
-		scenesManager = Managers_Persistent.scenesManager;
-		soundManager = Managers_Persistent.soundManager;
-		uiManager = Managers_Transient.uiManager;
 
-		if (scenesManager)
-			if (scenesManager.spawnPoint)
-				respawnPosition = scenesManager.spawnPoint.transform.position;
+	void Start () {
+		gameController = ReferenceController.gameController;
+		soundController = ReferenceController.audioController;
+		uiManager = ReferenceController.uiManager;
+
+		if (gameController)
+			if (gameController.spawnPoint)
+				respawnPosition = gameController.spawnPoint.transform.position;
+
+		StartCoroutine(Respawn(false));
 	}
 
 		
 	void FixedUpdate () {
+
+		begunFixedUpdateLoop = true;
+
 		if(!Respawning) {
 			Grounded = Physics2D.OverlapCircle (groundCheck.position, overlapCircleRadius, whatIsGround);
 		}
@@ -184,18 +180,18 @@ public class PlayerController : MonoBehaviour {
 			Grounded = false;
 			animator.SetBool ("Ground", false); // Duplicated for snappy responsiveness
 			if (rb2d.velocity.y <= 0)
-				soundManager.PlayRandomizedSFX(soundManager.GetJumpSounds());
+				soundController.PlayRandomizedSFX(soundController.GetJumpSounds());
 			rb2d.velocity = new Vector2(rb2d.velocity.x, jumpSpeed);
 		}
 	}
 
 
 	public void Die (bool _leftBodyBehind) {
-		if(gameManager.livesCurrent > 1) {
-			gameManager.DecrementLivesCurrent();
+		if(gameController.livesCurrent > 1) {
+			gameController.DecrementLivesCurrent();
 			uiManager.UpdateLivesCounter();
 
-			if(gameManager.livesCurrent == 1) {
+			if(gameController.livesCurrent == 1) {
 				uiManager.AddLivesCounterToFlashers();
 			}
 
@@ -204,7 +200,7 @@ public class PlayerController : MonoBehaviour {
 			StartCoroutine(Respawn(_leftBodyBehind));
 		}
 		else {
-			scenesManager.LoadLoseScreen();
+			gameController.LoadLoseScreen();
 		}
 	}
 
@@ -267,8 +263,12 @@ public class PlayerController : MonoBehaviour {
 
 
 	private IEnumerator Respawn(bool _leftBodyBehind) {
-		Respawning = true;
 
+		while(!begunFixedUpdateLoop) {
+			yield return null;
+		}
+
+		Respawning = true;
 		spriteRenderer.enabled = false;
 
 		if(_leftBodyBehind) {
@@ -290,10 +290,9 @@ public class PlayerController : MonoBehaviour {
 		while(cameraController.isMoving) {
 			yield return null;
 		}
-
+			
 		spawnParticles.Play();
 		spriteRenderer.enabled = true;
-
 		Respawning = false;
 	}
 

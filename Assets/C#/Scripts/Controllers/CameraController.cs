@@ -5,6 +5,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
 	private Transform playerTransform = null;
+	private Transform backgroundTransform = null;
+
 	private Vector3 thisPosPrev = Vector3.zero;
 
 	private float playerXPos = 0f;
@@ -20,6 +22,8 @@ public class CameraController : MonoBehaviour {
 	[SerializeField] private float rightMostEdge = 0f;
 	[SerializeField] private float topMostEdge = 0f;
 	[SerializeField] private float bottomMostEdge = 0f;
+	[SerializeField] private float parallaxDivisorX = 2f;
+	[SerializeField] private float parallaxDivisorY = 2f;
 
 	public bool isMoving { get; private set; }
 
@@ -27,13 +31,23 @@ public class CameraController : MonoBehaviour {
 	void Awake () {
 		isMoving = false;
 
-		GameObject player = PlayerController.instance.gameObject;
+		GameObject player = GameObject.Find("Player");
 		if(player)
 			playerTransform = player.transform;
+
+		GameObject background = GameObject.Find("Backgrounds");
+		if(background)
+			backgroundTransform = background.transform;
 	}
 
 
 	void FixedUpdate () {
+		MoveCamera();
+		UpdateParallaxBackground();
+	}
+
+
+	private void MoveCamera() {
 		thisPosPrev = transform.position;
 
 		playerXPos = playerTransform.position.x;
@@ -63,10 +77,15 @@ public class CameraController : MonoBehaviour {
 				transform.position = new Vector3 (transform.position.x, topMostEdge, transform.position.z);
 			}
 		}
-			
+
 		// Broken for peak of 'bell curve' -- possibly moot issue
 		isMoving = false;
 		if(Vector3.Distance(transform.position, thisPosPrev) > stillnessThreshold * Time.deltaTime)
 			isMoving = true;
+	}
+
+
+	private void UpdateParallaxBackground() {
+		backgroundTransform.position = new Vector3(transform.position.x/parallaxDivisorX, transform.position.y/parallaxDivisorY, backgroundTransform.position.z);
 	}
 }

@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class Trigger : MonoBehaviour {
 	protected GameObject player;
+	protected PlayerController playerController;
 
 	void Awake() {
-		player = PlayerController.instance.gameObject;
+		player = GameObject.Find("Player");
+		if(player != null)
+			playerController = player.GetComponent<PlayerController>();
 	}
 
 	void OnTriggerEnter2D (Collider2D _other) {

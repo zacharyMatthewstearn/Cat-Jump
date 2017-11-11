@@ -9,11 +9,8 @@ public class Interactable : MonoBehaviour {
 
 
 	void Start() {
-		interactionManager = Managers_Transient.interactionManager;
-
-		PlayerController playerController = PlayerController.instance;
-		if(playerController)
-			player = playerController.gameObject;
+		interactionManager = ReferenceController.interactionManager;
+		player = GameObject.Find("Player");
 	}
 
 
